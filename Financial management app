@@ -1,0 +1,48 @@
+import UIKit
+
+// Define a simple Transaction struct
+struct Transaction {
+    var name: String
+    var amount: Double
+}
+
+class ViewController: UIViewController {
+    // IBOutlet to connect to the text fields and table view in the storyboard
+    @IBOutlet weak var nameTextField: UITextField!
+    @IBOutlet weak var amountTextField: UITextField!
+    @IBOutlet weak var tableView: UITableView!
+
+    var transactions: [Transaction] = []
+
+    override func viewDidLoad() {
+        super.viewDidLoad()
+        // Configure the table view
+        tableView.dataSource = self
+    }
+
+    @IBAction func addTransaction(_ sender: UIButton) {
+        // Get transaction details from text fields
+        if let name = nameTextField.text, let amountText = amountTextField.text,
+            let amount = Double(amountText) {
+            let transaction = Transaction(name: name, amount: amount)
+            transactions.append(transaction)
+            tableView.reloadData()
+            nameTextField.text = ""
+            amountTextField.text = ""
+        }
+    }
+}
+
+extension ViewController: UITableViewDataSource {
+    func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
+        return transactions.count
+    }
+
+    func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
+        let cell = tableView.dequeueReusableCell(withIdentifier: "TransactionCell", for: indexPath)
+        let transaction = transactions[indexPath.row]
+        cell.textLabel?.text = transaction.name
+        cell.detailTextLabel?.text = String(format: "$%.2f", transaction.amount)
+        return cell
+    }
+}
