@@ -1,35 +1,44 @@
 import UIKit
 
-// Define a simple Transaction struct
 struct Transaction {
     var name: String
     var amount: Double
+    var category: String
+    var date: Date
 }
 
 class ViewController: UIViewController {
-    // IBOutlet to connect to the text fields and table view in the storyboard
     @IBOutlet weak var nameTextField: UITextField!
     @IBOutlet weak var amountTextField: UITextField!
+    @IBOutlet weak var categoryTextField: UITextField!
+    @IBOutlet weak var datePicker: UIDatePicker!
     @IBOutlet weak var tableView: UITableView!
 
     var transactions: [Transaction] = []
 
     override func viewDidLoad() {
         super.viewDidLoad()
-        // Configure the table view
         tableView.dataSource = self
     }
 
     @IBAction func addTransaction(_ sender: UIButton) {
-        // Get transaction details from text fields
-        if let name = nameTextField.text, let amountText = amountTextField.text,
-            let amount = Double(amountText) {
-            let transaction = Transaction(name: name, amount: amount)
-            transactions.append(transaction)
-            tableView.reloadData()
-            nameTextField.text = ""
-            amountTextField.text = ""
+        guard let name = nameTextField.text,
+              let amountText = amountTextField.text,
+              let amount = Double(amountText),
+              let category = categoryTextField.text else {
+            return
         }
+
+        let transaction = Transaction(name: name, amount: amount, category: category, date: datePicker.date)
+        transactions.append(transaction)
+        tableView.reloadData()
+        clearFields()
+    }
+
+    func clearFields() {
+        nameTextField.text = ""
+        amountTextField.text = ""
+        categoryTextField.text = ""
     }
 }
 
@@ -41,8 +50,14 @@ extension ViewController: UITableViewDataSource {
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCell(withIdentifier: "TransactionCell", for: indexPath)
         let transaction = transactions[indexPath.row]
-        cell.textLabel?.text = transaction.name
-        cell.detailTextLabel?.text = String(format: "$%.2f", transaction.amount)
+
+        let dateFormatter = DateFormatter()
+        dateFormatter.dateFormat = "MMM d, yyyy HH:mm"
+        let dateString = dateFormatter.string(from: transaction.date)
+
+        cell.textLabel?.text = "\(transaction.name) (\(transaction.category))"
+        cell.detailTextLabel?.text = String(format: "$%.2f • \(dateString)", transaction.amount)
+
         return cell
     }
 }
