@@ -61,3 +61,22 @@ extension ViewController: UITableViewDataSource {
         return cell
     }
 }
+
+import Foundation
+
+struct Transaction {
+    var name: String
+    var amount: Double
+    var category: String
+    var date: Date
+}
+import Foundation
+
+class TransactionManager {
+    var transactions: [Transaction] = []
+
+    func addTransaction(name: String, amount: Double, category: String, date: Date) {
+        let transaction = Transaction(name: name, amount: amount, category: category, date: date)
+        transactions.append(transaction)
+    }
+}
