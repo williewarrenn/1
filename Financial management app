@@ -80,3 +80,59 @@ class TransactionManager {
         transactions.append(transaction)
     }
 }
+import UIKit
+
+class ViewController: UIViewController {
+    @IBOutlet weak var nameTextField: UITextField!
+    @IBOutlet weak var amountTextField: UITextField!
+    @IBOutlet weak var categoryTextField: UITextField!
+    @IBOutlet weak var datePicker: UIDatePicker!
+    @IBOutlet weak var tableView: UITableView!
+
+    var transactionManager = TransactionManager()
+
+    override func viewDidLoad() {
+        super.viewDidLoad()
+        tableView.dataSource = self
+    }
+
+    @IBAction func addTransaction(_ sender: UIButton) {
+        guard let name = nameTextField.text,
+              let amountText = amountTextField.text,
+              let amount = Double(amountText),
+              let category = categoryTextField.text else {
+            return
+        }
+
+        let date = datePicker.date
+        transactionManager.addTransaction(name: name, amount: amount, category: category, date: date)
+        tableView.reloadData()
+        clearFields()
+    }
+
+    func clearFields() {
+        nameTextField.text = ""
+        amountTextField.text = ""
+        categoryTextField.text = ""
+    }
+}
+
+extension ViewController: UITableViewDataSource {
+    func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
+        return transactionManager.transactions.count
+    }
+
+    func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
+        let cell = tableView.dequeueReusableCell(withIdentifier: "TransactionCell", for: indexPath)
+        let transaction = transactionManager.transactions[indexPath.row]
+
+        let dateFormatter = DateFormatter()
+        dateFormatter.dateFormat = "MMM d, yyyy HH:mm"
+        let dateString = dateFormatter.string(from: transaction.date)
+
+        cell.textLabel?.text = "\(transaction.name) (\(transaction.category))"
+        cell.detailTextLabel?.text = String(format: "$%.2f • \(dateString)", transaction.amount)
+
+        return cell
+    }
+}
